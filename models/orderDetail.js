@@ -1,31 +1,24 @@
 module.exports = (sequelize, DataTypes) => {
-    const Transaction = sequelize.define('Transaction', {
-        TransactionID: {
+    const OrderDetail = sequelize.define('OrderDetail', {
+        OrderDetailID: {
             type: DataTypes.INTEGER,
             autoIncrement: true,
             primaryKey: true,
-        },
-        UserID: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
         },
         OrderID: {
             type: DataTypes.INTEGER,
             allowNull: false,
         },
-        Status: {
-            type: DataTypes.STRING,
-            allowNull: false,
-        },
-        Amount: {
-            type: DataTypes.DECIMAL(10, 2),
-            allowNull: false,
-        },
-        PaymentGateway: {
-            type: DataTypes.STRING,
-        },
-        PaymentMethodID: {
+        ProductID: {
             type: DataTypes.INTEGER,
+            allowNull: false,
+        },
+        Quantity: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+        },
+        Price: {
+            type: DataTypes.DECIMAL(10, 2),
             allowNull: false,
         },
         CreatedAt: {
@@ -36,5 +29,5 @@ module.exports = (sequelize, DataTypes) => {
         timestamps: false,
     });
 
-    return Transaction;
+    return OrderDetail;
 };

@@ -1,6 +1,6 @@
 const { validationResult } = require('express-validator');
 const { Address } = require('../models/Address');
-const { waste } = require('../models/Waste')
+const { Waste } = require('../models/Waste')
 
 // Step 1: Waste Info
 exports.wasteInfo = async (req, res, next) => {

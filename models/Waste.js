@@ -1,6 +1,4 @@
-const { DataTypes } = require('sequelize');
-const sequelize = require('../config/dbConnection'); // Assumes your Sequelize instance is configured here
-
+module.exports = (sequelize, DataTypes) => {
 const Waste = sequelize.define('Waste', {
   id: {
     type: DataTypes.INTEGER,
@@ -29,4 +27,5 @@ const Waste = sequelize.define('Waste', {
   }
 });
 
-module.exports = Waste;
+return Waste;
+};

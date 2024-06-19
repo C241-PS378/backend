@@ -1,19 +1,21 @@
 var jwt = require('jsonwebtoken');
 var bcrypt = require('bcrypt');
-const { User } = require('../models/User');
-const { validationResult } = require('express-validator');
+const { User } = require('../models');
+const { body, validationResult } = require('express-validator');
+const { PasswordReset }= require('../models/passwordReset');
 
 // Register
 const Register = async (req, res) => {
-    try {
-      const { username, email, phoneNumber, password } = req.body;
-  
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+
+  const { username, email, phoneNumber, password } = req.body;
+    
+  try {
       // Check if user already exists
-      const existingUser = await User.findOne({
-        where: {
-          username: username
-        }
-      });
+      const existingUser = await User.findOne({ where: { username } });
   
       if (existingUser) {
         return res.status(400).json({
@@ -27,9 +29,9 @@ const Register = async (req, res) => {
   
       // Create new user
       const newUser = await User.create({
-        username: username,
-        email: email,
-        phoneNumber: phoneNumber,
+        username,
+        email,
+        phoneNumber,
         password: hashedPassword
       });
   
@@ -161,9 +163,61 @@ const refreshToken = async (req, res) => {
   }
 }
 
+// Password Reset
+const resetPassword = async (req, res) => {
+  const { email, newPassword, confirmPassword, resetToken } = req.body;
+
+  try {
+    // Cari token reset password berdasarkan email
+    const resetInfo = await PasswordReset.findOne({ where: { email, resetToken } });
+
+    if (!resetInfo) {
+      return res.status(400).json({ error: 'Invalid or expired reset token' });
+    }
+
+    // Validasi apakah password dan confirm password sama
+    if (newPassword !== confirmPassword) {
+      return res.status(400).json({ error: 'Password and confirm password do not match' });
+    }
+
+    // Hash password baru
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // Update password di database
+    await User.update({ password: hashedPassword }, { where: { email } });
+
+    // Hapus token reset password dari database setelah digunakan
+    await PasswordReset.destroy({ where: { email } });
+
+    // Kirim respons bahwa reset password berhasil
+    return res.status(200).json({ message: 'Password reset successful' });
+  } catch (error) {
+    console.error('Error resetting password:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+// Validasi Register
+const validateRegistration = [
+  body('username').notEmpty().withMessage('Username tidak boleh kosong'),
+  body('email').isEmail().withMessage('Format email tidak valid'),
+  body('phoneNumber').matches(/^\d+$/).withMessage('Nomor telepon hanya boleh berisi angka'),
+  body('password').isLength({ min: 8 }).withMessage('Password minimal 8 karakter')
+];
+
+// Validasi Login
+const validateLogin = [
+  body('email').isEmail().withMessage('Format email tidak valid'),
+  body('password').isLength({ min: 8 }).withMessage('Password minimal 8 karakter')
+];
+
+
 module.exports = {
   Register,  
   Login,
   Logout,
-  refreshToken
+  refreshToken,
+  resetPassword,
+  validateLogin,
+  validateRegistration,
 };

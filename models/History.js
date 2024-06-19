@@ -1,32 +1,33 @@
-const { DataTypes } = require('sequelize');
-const sequelize = require('../config/dbConnection'); // Sesuaikan dengan konfigurasi database Anda
+module.exports = (sequelize, DataTypes) => {
+  const History = sequelize.define('History', {
+      HistoryID: {
+          type: DataTypes.INTEGER,
+          autoIncrement: true,
+          primaryKey: true,
+      },
+      UserID: {
+          type: DataTypes.INTEGER,
+          allowNull: false,
+      },
+      ProductID: {
+          type: DataTypes.INTEGER,
+          allowNull: false,
+      },
+      TransactionType: {
+          type: DataTypes.STRING,
+          allowNull: false,
+      },
+      TransactionDate: {
+          type: DataTypes.DATE,
+          allowNull: false,
+      },
+      TotalPrice: {
+          type: DataTypes.DECIMAL(10, 2),
+          allowNull: false,
+      },
+  }, {
+      timestamps: false,
+  });
 
-const History = sequelize.define('History', {
-  id: {
-    type: DataTypes.INTEGER,
-    primaryKey: true,
-    autoIncrement: true,
-  },
-  userId: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-  },
-  productId: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-  },
-  transactionType: {
-    type: DataTypes.ENUM('sold', 'bought'),
-    allowNull: false,
-  },
-  transactionAmount: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-  },
-  transactionDate: {
-    type: DataTypes.DATE,
-    defaultValue: DataTypes.NOW,
-  },
-});
-
-module.exports = History;
+  return History;
+};
